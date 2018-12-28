@@ -29,7 +29,7 @@ class ReactiveService(
 
     private fun loadReactive(): Reactive? {
         return try {
-            contentClient.getContents(repository, "reactive.yml", reactiveConfig.headSha).firstOrNull()?.content?.let {
+            contentClient.getContents(repository, "reactive.yml", reactiveConfig.baseSha).firstOrNull()?.content?.let {
                 String(Base64.getMimeDecoder().decode(it))
             }?.let {
                 println("Reactive YAML:\n$it")
