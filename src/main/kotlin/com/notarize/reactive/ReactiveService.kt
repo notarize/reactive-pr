@@ -25,7 +25,7 @@ class ReactiveService(
 
     private val contentClient = ContentsService(githubClient)
 
-    private val reactive = loadReactive()
+    val reactive = loadReactive()
 
     private fun loadReactive(): Reactive? {
         return try {
@@ -37,7 +37,7 @@ class ReactiveService(
                 Reactive(yaml.load(it))
             }
         } catch (exception: IOException) {
-            println(exception.localizedMessage)
+            println("Failed to load Reactive YAML: ${exception.localizedMessage}")
             null
         }
     }

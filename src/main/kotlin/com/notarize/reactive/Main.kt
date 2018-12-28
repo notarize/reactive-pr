@@ -10,6 +10,10 @@ fun main() {
         println("Issue is not open: ${reactiveService.getIssueState()}")
         return
     }
+    if (reactiveService.reactive == null) {
+        println("Reactive YAML not found")
+        return
+    }
     val passedReactions = reactiveService.getPassedReactions().toList()
     println("Passed Reactions:\n$passedReactions")
     passedReactions.map {
