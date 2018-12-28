@@ -25,7 +25,9 @@ class ReactiveService(
 
     private val contentClient = ContentsService(githubClient)
 
-    val reactive = loadReactive()
+    val reactive: Lazy<Reactive?> = lazy {
+        loadReactive()
+    }
 
     private fun loadReactive(): Reactive? {
         return try {
@@ -44,7 +46,9 @@ class ReactiveService(
 
     private val labelClient = LabelService(githubClient)
 
-    private val managedLabels = generateLabels()
+    private val managedLabels: Lazy<List<Label>> = lazy {
+        generateLabels()
+    }
 
     private fun generateLabels(): List<Label> {
         val expectedLabels = getReactions().map {
@@ -80,7 +84,9 @@ class ReactiveService(
 
     private val commitClient = CommitService(githubClient)
 
-    private val diffFiles = getDiffPaths()
+    private val diffFiles: Lazy<List<CommitFile>> = lazy {
+        getDiffPaths()
+    }
 
     private fun getDiffPaths(): List<CommitFile> {
         return try {
@@ -95,7 +101,7 @@ class ReactiveService(
     }
 
     private fun getReactions(): List<Reaction> {
-        return reactive?.reactions ?: emptyList()
+        return reactive.value?.reactions ?: emptyList()
     }
 
     fun getPassedReactions(): List<Reaction> {
@@ -116,14 +122,14 @@ class ReactiveService(
                     .map { doesPass("modified", it) }
                 when (ruleEntry.key) {
                     RuleResult.Truths -> addedChecks.all {
-                        diffFiles.any(it)
+                        diffFiles.value.any(it)
                     } && modifiedChecks.all {
-                        diffFiles.any(it)
+                        diffFiles.value.any(it)
                     }
                     RuleResult.Lies -> addedChecks.all {
-                        diffFiles.none(it)
+                        diffFiles.value.none(it)
                     } && modifiedChecks.all {
-                        diffFiles.none(it)
+                        diffFiles.value.none(it)
                     }
                 }
             }
@@ -140,14 +146,14 @@ class ReactiveService(
     fun getIssueState(): String = issueClient.getIssue(repository, reactiveConfig.issueNumber).state
 
     fun applyLabels(labels: List<String>) {
-        val toAddLabels = managedLabels.filter {
+        val toAddLabels = managedLabels.value.filter {
             labels.any { labelName ->
                 it.name == labelName
             }
         }
         val issue = issueClient.getIssue(repository, reactiveConfig.issueNumber)
         val newLabels = issue.labels.filterNot { label ->
-            managedLabels.any {
+            managedLabels.value.any {
                 label.name == it.name
             }
         }.toMutableList().apply {
@@ -188,5 +194,6 @@ class ReactiveService(
             null
         )
     }
+}
 
 }
