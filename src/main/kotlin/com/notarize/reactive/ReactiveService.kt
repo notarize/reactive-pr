@@ -132,6 +132,13 @@ class ReactiveService(
 
     private val issueClient = IssueService(githubClient)
 
+    fun isIssueOpen(): Boolean {
+        val issueState = getIssueState()
+        return issueState != "closed"
+    }
+
+    fun getIssueState(): String = issueClient.getIssue(repository, reactiveConfig.issueNumber).state
+
     fun applyLabels(labels: List<String>) {
         val toAddLabels = managedLabels.filter {
             labels.any { labelName ->

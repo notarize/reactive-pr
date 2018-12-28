@@ -6,6 +6,10 @@ fun main() {
     val reactiveService = ReactiveService(
         reactiveConfig = reactiveConfig
     )
+    if (!reactiveService.isIssueOpen()) {
+        println("Issue is not open: ${reactiveService.getIssueState()}")
+        return
+    }
     val passedReactions = reactiveService.getPassedReactions().toList()
     println("Passed Reactions:\n$passedReactions")
     passedReactions.map {
