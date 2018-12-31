@@ -120,15 +120,26 @@ class ReactiveService(
                 val modifiedChecks = ruleEntry.value.modified
                     .map { Regex(it) }
                     .map { doesPass("modified", it) }
+                val anyChecks = ruleEntry.value.any
+                    .map { Regex(it) }
+                    .map { regex ->
+                        { it: CommitFile ->
+                            doesPass("added", regex).invoke(it) || doesPass("modified", regex).invoke(it)
+                        }
+                    }
                 when (ruleEntry.key) {
                     RuleResult.Truths -> addedChecks.all {
                         diffFiles.value.any(it)
                     } && modifiedChecks.all {
                         diffFiles.value.any(it)
+                    } && anyChecks.all {
+                        diffFiles.value.any(it)
                     }
                     RuleResult.Lies -> addedChecks.all {
                         diffFiles.value.none(it)
                     } && modifiedChecks.all {
+                        diffFiles.value.none(it)
+                    } && anyChecks.all {
                         diffFiles.value.none(it)
                     }
                 }
