@@ -110,7 +110,7 @@ class ReactiveService(
             rules.all { ruleEntry ->
                 fun doesPass(statusCheck: String, regex: Regex): ((CommitFile) -> Boolean) {
                     return {
-                        regex.matches(it.filename) && it.status == statusCheck
+                        regex.containsMatchIn(it.filename) && it.status == statusCheck
                     }
                 }
 
