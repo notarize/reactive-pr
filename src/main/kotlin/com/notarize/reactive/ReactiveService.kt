@@ -17,8 +17,6 @@ class ReactiveService(
 
     private val githubClient = GitHubClient().apply {
         setOAuth2Token(reactiveConfig.githubAuthToken)
-    }.also {
-        println("Github API V3 Remaining Requests: ${it.remainingRequests} of ${it.requestLimit}")
     }
 
     private val repository = RepositoryService(githubClient).repositories.find {
@@ -39,6 +37,8 @@ class ReactiveService(
                 println("Reactive YAML:\n$it")
                 val yaml = Yaml()
                 Reactive(yaml.load(it))
+            }.also {
+                println("Github API V3 Remaining Requests: ${githubClient.remainingRequests} of ${githubClient.requestLimit}")
             }
         } catch (exception: IOException) {
             println("Failed to load Reactive YAML: ${exception.localizedMessage}")
