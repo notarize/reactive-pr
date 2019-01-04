@@ -170,6 +170,7 @@ class ReactiveService(
         }.toMutableList().apply {
             addAll(toAddLabels)
         }.toList()
+        if (issue.labels.containsAll(newLabels) && newLabels.containsAll(issue.labels)) return
         issue.labels = newLabels
         issueClient.editIssue(repository, issue)
     }

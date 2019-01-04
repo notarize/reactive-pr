@@ -22,9 +22,6 @@ fun main() {
         .flatten()
         .toSet()
         .toList()
-        .takeIf {
-            it.isNotEmpty()
-        }
         ?.let {
             println("Matched Labels: $it")
             try {
