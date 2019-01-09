@@ -10,10 +10,13 @@ class ActionProcess(
 
     val teamReview: List<String>
 
+    val comment: List<String>
+
     init {
         label = (data["label"] as? List<*>)?.map { it as String } ?: emptyList()
         review = (data["review"] as? List<*>)?.map { it as String } ?: emptyList()
         teamReview = (data["team_review"] as? List<*>)?.map { it as String } ?: emptyList()
+        comment = (data["comment"] as? List<*>)?.map { it as String } ?: emptyList()
     }
 
     override fun toString(): String {

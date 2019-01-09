@@ -1,5 +1,7 @@
 package com.notarize.reactive
 
+import com.notarize.reactive.model.Comment
+
 
 fun main() {
     val reactiveConfig = System.getProperties().parseReactiveConfig()
@@ -22,7 +24,7 @@ fun main() {
         .flatten()
         .toSet()
         .toList()
-        ?.let {
+        .let {
             println("Matched Labels: $it")
             try {
                 reactiveService.applyLabels(it)
@@ -64,5 +66,24 @@ fun main() {
                 println("Failed to request group reviews due to: ${t.localizedMessage}")
             }
 
+        }
+    passedReactions.map {
+        it.actionProcess.comment.map { comment ->
+            Comment(
+                reactionName = it.name,
+                body = comment
+            )
+        }
+    }
+        .flatten()
+        .toSet()
+        .toList()
+        .let {
+            println("Desired Comments: $it")
+            try {
+                reactiveService.applyComments(it)
+            } catch (t: Throwable) {
+                println("Failed to apply comments due to: ${t.localizedMessage}")
+            }
         }
 }

@@ -1,5 +1,6 @@
 package com.notarize.reactive
 
+import com.notarize.reactive.model.Comment
 import com.notarize.reactive.model.Reaction
 import com.notarize.reactive.model.Reactive
 import com.notarize.reactive.model.RuleResult
@@ -9,6 +10,8 @@ import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.*
 import org.yaml.snakeyaml.Yaml
 import java.io.IOException
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class ReactiveService(
@@ -31,7 +34,7 @@ class ReactiveService(
 
     private fun loadReactive(): Reactive? {
         return try {
-            contentClient.getContents(repository, "reactive.yml", reactiveConfig.baseSha).firstOrNull()?.content?.let {
+            contentClient.getContents(repository, "reactive.yml", reactiveConfig.headSha).firstOrNull()?.content?.let {
                 String(Base64.getMimeDecoder().decode(it))
             }?.let {
                 println("Reactive YAML:\n$it")
@@ -208,4 +211,25 @@ class ReactiveService(
             null
         )
     }
+
+    fun applyComments(comments: List<Comment>) {
+        val issueComments = issueClient.getComments(repository, reactiveConfig.issueNumber)
+        val now = DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.now())
+        comments.forEach { comment ->
+            val commentBody = "${comment.reactionName}:\n${comment.body}\nUpdated: $now"
+            issueComments
+                .firstOrNull { it.body.startsWith(comment.reactionName) && it.user.name == githubClient.user }
+                ?.let {
+                    it.body = commentBody
+                    issueClient.editComment(repository, it)
+                    return@forEach
+                }
+            issueClient.createComment(
+                repository,
+                reactiveConfig.issueNumber,
+                commentBody
+            )
+        }
+    }
+
 }
