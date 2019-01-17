@@ -11,6 +11,7 @@ import org.eclipse.egit.github.core.service.*
 import org.yaml.snakeyaml.Yaml
 import java.io.IOException
 import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -214,7 +215,9 @@ class ReactiveService(
 
     fun applyComments(comments: List<Comment>) {
         val issueComments = issueClient.getComments(repository, reactiveConfig.issueNumber)
-        val now = DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.now())
+        val now = DateTimeFormatter.RFC_1123_DATE_TIME
+            .withZone(ZoneId.systemDefault())
+            .format(Instant.now())
         comments.forEach { comment ->
             val commentBody = "${comment.reactionName}:\n${comment.body}\nUpdated: $now"
             issueComments
